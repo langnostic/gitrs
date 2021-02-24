@@ -1,5 +1,10 @@
 fn main() {
-    println!("Hello, world!");
-    // learn about how git works
+    print_help();
+}
 
+fn print_help() {
+    println!("\
+Hello World!
+This is a multi-line string.
+");
 }

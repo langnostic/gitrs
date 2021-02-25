@@ -16,6 +16,6 @@ fn main() {
     // what should happen if .git already exists?
 
     if matches.is_present("init") {
-        init::run_init(None).unwrap();
+        init::init_main(None).unwrap();
     }
 }

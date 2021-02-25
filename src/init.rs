@@ -1,7 +1,7 @@
 use std::io;
 use std::path::PathBuf;
 
-pub fn run_init(cmd_dir: Option<&str>) -> io::Result<()> {
+pub fn init_main(cmd_dir: Option<&str>) -> io::Result<()> {
     let git_path = create_path(cmd_dir)?;
     // check if folder already exists
     if git_path.exists() {}

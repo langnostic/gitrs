@@ -15,10 +15,10 @@ fn main() {
         .settings(&[AppSettings::ArgRequiredElseHelp])
         .get_matches();
 
-    let main_result: Result<(), ()>;
+    let _main_result: Result<(), ()>;
 
     if matches.is_present("init") {
-        main_result = init::run_init();
+        _main_result = init::run_init();
     }
 
     let _ = Repository {};

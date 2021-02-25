@@ -16,6 +16,8 @@ fn main() {
     // what should happen if .git already exists?
 
     if matches.is_present("init") {
-        init::init_main(None).unwrap();
+        if let Err(e) = init::init_main(None) {
+            eprintln!("Problem initializing git folder: {}", e);
+        }
     }
 }

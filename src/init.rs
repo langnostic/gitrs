@@ -1,19 +1,44 @@
+use std::fs;
 use std::io;
 use std::path::PathBuf;
 
 pub fn init_main(cmd_dir: Option<&str>) -> io::Result<()> {
-    let git_path = create_path(cmd_dir)?;
-    // check if folder already exists
-    if git_path.exists() {}
-    //git_path.push(".gitrs/");
+    let git_path = create_git_path(cmd_dir)?;
+
+    if !git_path.exists() {
+        fs::create_dir(&git_path)?;
+    }
+
+    Ok(create_git_tree(&git_path)?)
+}
+
+fn create_git_tree(git_path: &PathBuf) -> io::Result<()> {
+    // create git directories
+    for dir in [
+        "objects",
+        "objects/info",
+        "objects/pack",
+        "refs",
+        "refs/heads",
+        "refs/tags",
+    ]
+    .iter()
+    {
+        fs::create_dir(git_path.join(dir))?;
+    }
+
+    // create git HEAD file
+    fs::write(git_path.join("HEADS"), "refs: refs/heads/main\n")?;
+
     Ok(())
 }
 
-fn create_path(cmd_path: Option<&str>) -> io::Result<PathBuf> {
-    Ok(match sanitize_path_str(cmd_path) {
+fn create_git_path(cmd_path: Option<&str>) -> io::Result<PathBuf> {
+    let dir = match sanitize_path_str(cmd_path) {
         Some(s) => PathBuf::from(s),
         None => std::env::current_dir()?,
-    })
+    };
+    Ok(dir.join(".gitrs"))
 }
 
 // strip any trailing slashes from user input str
@@ -55,32 +80,32 @@ mod sanitize_path_str_tests {
     }
 }
 
-// #[cfg(test)]
-// mod create_path_tests {
-//     use super::*;
+#[cfg(test)]
+mod create_path_tests {
+    use super::*;
 
-//     fn setup_tmp_dir(path: Option<&str>) -> io::Result<PathBuf> {
-//         let tmp_path = PathBuf::from(path.unwrap_or("/tmp"));
-//         if !tmp_path.exists() {
-//             std::fs::create_dir(&tmp_path)?;
-//         }
-//         std::env::set_current_dir(&tmp_path)?;
-//         Ok(tmp_path)
-//     }
+    fn setup_tmp_dir(path: Option<&str>) -> io::Result<PathBuf> {
+        let tmp_path = PathBuf::from(path.unwrap_or("/tmp"));
+        if !tmp_path.exists() {
+            std::fs::create_dir(&tmp_path)?;
+        }
+        std::env::set_current_dir(&tmp_path)?;
+        Ok(tmp_path)
+    }
 
-//     #[test]
-//     fn create_path_with_none() -> io::Result<()> {
-//         let tmp_path = setup_tmp_dir(None)?;
-//         let actual_path = create_path(None)?;
-//         assert_eq!(tmp_path, actual_path);
-//         Ok(())
-//     }
+    #[test]
+    fn create_path_with_none() -> io::Result<()> {
+        let tmp_path = setup_tmp_dir(None)?.join(".gitrs");
+        let actual_path = create_git_path(None)?;
+        assert_eq!(tmp_path, actual_path);
+        Ok(())
+    }
 
-//     #[test]
-//     fn create_path_with_multi_slashes() -> io::Result<()> {
-//         let tmp_path = setup_tmp_dir(None)?;
-//         let actual_path = create_path(Some("/tmp/////"))?;
-//         assert_eq!(tmp_path, actual_path);
-//         Ok(())
-//     }
-// }
+    #[test]
+    fn create_path_with_multi_slashes() -> io::Result<()> {
+        let tmp_path = setup_tmp_dir(None)?.join(".gitrs");
+        let actual_path = create_git_path(Some("/tmp/////"))?;
+        assert_eq!(tmp_path, actual_path);
+        Ok(())
+    }
+}

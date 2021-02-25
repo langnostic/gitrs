@@ -1,9 +1,6 @@
 extern crate clap;
-mod init;
-mod repository;
 
 use clap::{crate_version, App, AppSettings, Arg};
-use repository::Repository;
 
 // Lets start by recreating the 'init' command
 // I need to create a '.git' folder at the given directory
@@ -20,6 +17,10 @@ fn main() {
     if matches.is_present("init") {
         _main_result = init::run_init();
     }
+}
 
-    let _ = Repository {};
+mod init {
+    pub fn run_init() -> Result<(), ()> {
+        Ok(())
+    }
 }

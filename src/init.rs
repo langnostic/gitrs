@@ -11,10 +11,7 @@ pub fn init_main(args: &[String]) {
     };
 
     let git_path = match create_git_path(dir) {
-        Ok(path_buf) => {
-            println!("Path from create_git_path: {:?}", path_buf.display());
-            path_buf.join(DEFAULT_GIT_DIR)
-        }
+        Ok(path_buf) => path_buf.join(DEFAULT_GIT_DIR),
         Err(e) => {
             eprintln!("Could not construct git directory path. Error: {:?}", e);
             return;
@@ -67,7 +64,7 @@ fn create_git_path(cmd_path: Option<&str>) -> io::Result<PathBuf> {
 }
 
 #[cfg(test)]
-mod create_path_tests {
+mod create_git_path_tests {
     use super::*;
 
     const DEFAULT_TMP_DIR: &'static str = "/tmp";

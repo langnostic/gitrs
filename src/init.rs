@@ -1,3 +1,4 @@
+use crate::{DEFAULT_GIT_DIR, DEFAULT_GIT_DIR_TREE};
 use std::fs;
 use std::io;
 use std::path::PathBuf;
@@ -33,21 +34,12 @@ pub fn init_main(args: &[String]) {
 
 fn create_git_tree(git_path: &PathBuf) -> io::Result<()> {
     // create git directories
-    for dir in [
-        "objects",
-        "objects/info",
-        "objects/pack",
-        "refs",
-        "refs/heads",
-        "refs/tags",
-    ]
-    .iter()
-    {
+    for dir in DEFAULT_GIT_DIR_TREE.iter() {
         fs::create_dir(git_path.join(dir))?;
     }
 
     // create git HEAD file
-    fs::write(git_path.join("HEADS"), "refs: refs/heads/main\n")?;
+    fs::write(git_path.join("HEAD"), "refs: refs/heads/main\n")?;
 
     Ok(())
 }
@@ -57,7 +49,7 @@ fn create_git_path(cmd_path: Option<&str>) -> io::Result<PathBuf> {
         Some(s) => PathBuf::from(s),
         None => std::env::current_dir()?,
     };
-    Ok(dir.join(".gitrs"))
+    Ok(dir.join(DEFAULT_GIT_DIR))
 }
 
 // strip any trailing slashes from user input str
@@ -127,7 +119,7 @@ mod create_path_tests {
 
     #[test]
     fn create_path_with_multi_slashes() -> io::Result<()> {
-        let tmp_path = setup_tmp_dir(None)?.join(".gitrs");
+        let tmp_path = setup_tmp_dir(None)?.join(DEFAULT_GIT_DIR);
         let actual_path = create_git_path(Some("/tmp/////"))?;
         assert_eq!(tmp_path, actual_path);
         Ok(())

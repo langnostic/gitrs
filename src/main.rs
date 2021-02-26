@@ -12,7 +12,6 @@ static DEFAULT_GIT_DIR_TREE: &'static [&'static str] = &[
 
 fn main() {
     let args: Vec<String> = std::env::args().collect();
-
     if args.len() == 1 {
         print_short_help();
         return;
@@ -25,7 +24,7 @@ fn main() {
             print_short_help();
             println!("Command not support!");
         }
-    }
+    };
 }
 
 fn print_short_help() {

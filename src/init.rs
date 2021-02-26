@@ -10,7 +10,7 @@ pub fn init_main(args: &[String]) {
     };
 
     let git_path = match create_git_path(dir) {
-        Ok(s) => s,
+        Ok(s) => s.join(DEFAULT_GIT_DIR),
         Err(e) => {
             eprintln!("Could not create git directory: {}", e);
             return;
@@ -32,24 +32,24 @@ pub fn init_main(args: &[String]) {
     println!("Initialized something at something");
 }
 
+/// Create the git directory and all of the subsequent directories in files
 fn create_git_tree(git_path: &PathBuf) -> io::Result<()> {
-    // create git directories
     for dir in DEFAULT_GIT_DIR_TREE.iter() {
         fs::create_dir(git_path.join(dir))?;
     }
 
-    // create git HEAD file
     fs::write(git_path.join("HEAD"), "refs: refs/heads/main\n")?;
-
     Ok(())
 }
 
+/// Takes the user's input after the main command, sanitizes the string, and
+/// creates a Path from that string, or uses the current directory.
+
 fn create_git_path(cmd_path: Option<&str>) -> io::Result<PathBuf> {
-    let dir = match sanitize_path_str(cmd_path) {
+    Ok(match sanitize_path_str(cmd_path) {
         Some(s) => PathBuf::from(s),
         None => std::env::current_dir()?,
-    };
-    Ok(dir.join(DEFAULT_GIT_DIR))
+    })
 }
 
 // strip any trailing slashes from user input str
@@ -94,14 +94,21 @@ mod sanitize_path_str_tests {
     fn empty_string_some() {
         assert_eq!(None, sanitize_path_str(Some("")));
     }
+
+    #[test]
+    fn whitespace_str() {
+        assert_eq!(None, sanitize_path_str(Some("         ")));
+    }
 }
 
 #[cfg(test)]
 mod create_path_tests {
     use super::*;
 
-    fn setup_tmp_dir(path: Option<&str>) -> io::Result<PathBuf> {
-        let tmp_path = PathBuf::from(path.unwrap_or("/tmp"));
+    const DEFAULT_TMP_DIR: &'static str = "/tmp";
+
+    fn set_curr_dir(path: Option<&str>) -> io::Result<PathBuf> {
+        let tmp_path = PathBuf::from(path.unwrap_or(DEFAULT_TMP_DIR));
         if !tmp_path.exists() {
             std::fs::create_dir(&tmp_path)?;
         }
@@ -111,7 +118,7 @@ mod create_path_tests {
 
     #[test]
     fn create_path_with_none() -> io::Result<()> {
-        let tmp_path = setup_tmp_dir(None)?.join(".gitrs");
+        let tmp_path = set_curr_dir(None)?;
         let actual_path = create_git_path(None)?;
         assert_eq!(tmp_path, actual_path);
         Ok(())
@@ -119,8 +126,8 @@ mod create_path_tests {
 
     #[test]
     fn create_path_with_multi_slashes() -> io::Result<()> {
-        let tmp_path = setup_tmp_dir(None)?.join(DEFAULT_GIT_DIR);
-        let actual_path = create_git_path(Some("/tmp/////"))?;
+        let tmp_path = PathBuf::from("examples");
+        let actual_path = create_git_path(Some("examples/////"))?;
         assert_eq!(tmp_path, actual_path);
         Ok(())
     }

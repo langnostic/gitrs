@@ -2,14 +2,33 @@ use std::fs;
 use std::io;
 use std::path::PathBuf;
 
-pub fn init_main(cmd_dir: Option<&str>) -> io::Result<()> {
-    let git_path = create_git_path(cmd_dir)?;
+pub fn init_main(args: &[String]) {
+    let dir = match args.len() {
+        0 => None,
+        _ => Some(args[0].as_str()),
+    };
+
+    let git_path = match create_git_path(dir) {
+        Ok(s) => s,
+        Err(e) => {
+            eprintln!("Could not create git directory: {}", e);
+            return;
+        }
+    };
 
     if !git_path.exists() {
-        fs::create_dir(&git_path)?;
+        if let Err(e) = fs::create_dir(&git_path) {
+            eprintln!("Could not create git directory: {}", e);
+            return;
+        }
     }
 
-    Ok(create_git_tree(&git_path)?)
+    if let Err(e) = create_git_tree(&git_path) {
+        eprintln!("Could not create git directory: {}", e);
+        return;
+    }
+
+    println!("Initialized something at something");
 }
 
 fn create_git_tree(git_path: &PathBuf) -> io::Result<()> {
@@ -77,6 +96,11 @@ mod sanitize_path_str_tests {
     #[test]
     fn only_slash_in_str() {
         assert_eq!(None, sanitize_path_str(Some("/")));
+    }
+
+    #[test]
+    fn empty_string_some() {
+        assert_eq!(None, sanitize_path_str(Some("")));
     }
 }
 

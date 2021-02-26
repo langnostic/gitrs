@@ -9,6 +9,13 @@ static DEFAULT_GIT_DIR_TREE: &'static [&'static str] = &[
     "refs/heads",
     "refs/tags",
 ];
+static DEFAULT_LOCAL_CONFIG: &'static str = "\
+[core]
+	repositoryformatversion = 0
+	filemode = true
+	bare = false
+	logallrefupdates = true
+";
 
 fn main() {
     let args: Vec<String> = std::env::args().collect();

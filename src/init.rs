@@ -1,4 +1,4 @@
-use crate::{DEFAULT_GIT_DIR, DEFAULT_GIT_DIR_TREE};
+use crate::{DEFAULT_GIT_DIR, DEFAULT_GIT_DIR_TREE, DEFAULT_LOCAL_CONFIG};
 use std::fs;
 use std::io;
 use std::path::PathBuf;
@@ -29,7 +29,10 @@ pub fn init_main(args: &[String]) {
         return;
     }
 
-    println!("Initialized something at something");
+    println!(
+        "Initialized empty Gitrs repository in {}",
+        git_path.display()
+    );
 }
 
 /// Create the git directory and all of the subsequent directories in files
@@ -39,6 +42,7 @@ fn create_git_tree(git_path: &PathBuf) -> io::Result<()> {
     }
 
     fs::write(git_path.join("HEAD"), "refs: refs/heads/main\n")?;
+    fs::write(git_path.join("config"), DEFAULT_LOCAL_CONFIG)?;
     Ok(())
 }
 

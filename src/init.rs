@@ -1,4 +1,5 @@
 use crate::{DEFAULT_GIT_DIR, DEFAULT_GIT_DIR_TREE, DEFAULT_LOCAL_CONFIG};
+use path_clean::PathClean;
 use std::fs;
 use std::io;
 use std::path::PathBuf;
@@ -10,22 +11,25 @@ pub fn init_main(args: &[String]) {
     };
 
     let git_path = match create_git_path(dir) {
-        Ok(s) => s.join(DEFAULT_GIT_DIR),
+        Ok(path_buf) => {
+            println!("Path from create_git_path: {:?}", path_buf.display());
+            path_buf.join(DEFAULT_GIT_DIR)
+        }
         Err(e) => {
-            eprintln!("Could not create git directory: {}", e);
+            eprintln!("Could not construct git directory path. Error: {:?}", e);
             return;
         }
     };
 
     if !git_path.exists() {
-        if let Err(e) = fs::create_dir(&git_path) {
-            eprintln!("Could not create git directory: {}", e);
+        if let Err(e) = fs::create_dir_all(&git_path) {
+            eprintln!("Could not create git directory. Error: {:?}", e);
             return;
         }
     }
 
     if let Err(e) = create_git_tree(&git_path) {
-        eprintln!("Could not create git directory: {}", e);
+        eprintln!("Could not create git directory tree. Error: {:?}", e);
         return;
     }
 
@@ -50,59 +54,16 @@ fn create_git_tree(git_path: &PathBuf) -> io::Result<()> {
 /// creates a Path from that string, or uses the current directory.
 
 fn create_git_path(cmd_path: Option<&str>) -> io::Result<PathBuf> {
-    Ok(match sanitize_path_str(cmd_path) {
-        Some(s) => PathBuf::from(s),
+    Ok(match cmd_path {
+        Some(s) => {
+            let mut tmp = PathBuf::from(s).clean();
+            if tmp.is_relative() {
+                tmp = std::env::current_dir()?.join(tmp);
+            }
+            tmp
+        }
         None => std::env::current_dir()?,
     })
-}
-
-// strip any trailing slashes from user input str
-// PathBuf will add slashes as needed
-// does this need to be cross platform?
-fn sanitize_path_str(path_str: Option<&str>) -> Option<&str> {
-    let s = path_str?.trim().trim_end_matches("/");
-    if s.is_empty() {
-        return None;
-    }
-    Some(s)
-}
-
-#[cfg(test)]
-mod sanitize_path_str_tests {
-    use super::*;
-
-    #[test]
-    fn one_slash_in_str() {
-        let actual_path = sanitize_path_str(Some("/tmp/"));
-        assert_eq!("/tmp", actual_path.unwrap());
-    }
-
-    #[test]
-    fn no_slashes_in_str() {
-        let path_str = "/tmp";
-        let actual = sanitize_path_str(Some(path_str));
-        assert_eq!(path_str, actual.unwrap());
-    }
-
-    #[test]
-    fn none_str() {
-        assert_eq!(None, sanitize_path_str(None));
-    }
-
-    #[test]
-    fn only_slash_in_str() {
-        assert_eq!(None, sanitize_path_str(Some("/")));
-    }
-
-    #[test]
-    fn empty_string_some() {
-        assert_eq!(None, sanitize_path_str(Some("")));
-    }
-
-    #[test]
-    fn whitespace_str() {
-        assert_eq!(None, sanitize_path_str(Some("         ")));
-    }
 }
 
 #[cfg(test)]

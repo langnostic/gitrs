@@ -2,7 +2,7 @@
 
 A Rewrite of Git in Rust.
 
-This is purely for my educational purposes, to learn more about git and practice writing Rust. This is not meant as a full fledge replacement of Git.
+This is purely for my educational purposes, to learn more about git and practice writing a "real" project with Rust. This is not meant as a full fledge replacement of Git, and I do not recommend any actualling using this software, at this time.
 
 There is no guarantee that this software will build or work at this, I'm currently in the beginning, experimental and reaserach phase of this project. **Clone/Fork at your own risk.**
 

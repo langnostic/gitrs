@@ -1,21 +1,7 @@
 mod init;
+mod repo;
 
 static DEFAULT_GIT_DIR: &'static str = ".gitrs";
-static DEFAULT_GIT_DIR_TREE: &'static [&'static str] = &[
-    "objects",
-    "objects/info",
-    "objects/pack",
-    "refs",
-    "refs/heads",
-    "refs/tags",
-];
-static DEFAULT_LOCAL_CONFIG: &'static str = "\
-[core]
-	repositoryformatversion = 0
-	filemode = true
-	bare = false
-	logallrefupdates = true
-";
 
 fn main() {
     let args: Vec<String> = std::env::args().collect();
@@ -25,7 +11,7 @@ fn main() {
     }
 
     match args[1].as_str() {
-        "init" => init::init_main(&args[2..]),
+        "init" => init::main(&args[2..]),
         "help" => print_full_help(),
         _ => {
             print_short_help();

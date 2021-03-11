@@ -7,23 +7,16 @@ use std::path::PathBuf;
 
 // TODO: Question for future langnostic
 // Can I replicate this folder structure as a struct?
-const DEFAULT_GIT_DIR_TREE: &[&str] = &[
-    "objects",
-    "objects/info",
-    "objects/pack",
-    "refs",
-    "refs/heads",
-    "refs/tags",
-];
+const DEFAULT_GIT_DIR_TREE: &[&str] = &["objects", "refs", "refs/heads"];
 
 // TODO: consider moving this to a template folder?
-const DEFAULT_LOCAL_CONFIG: &str = "\
-[core]
-	repositoryformatversion = 0
-	filemode = true
-	bare = false
-	logallrefupdates = true
-";
+// const DEFAULT_LOCAL_CONFIG: &str = "\
+// [core]
+// 	repositoryformatversion = 0
+// 	filemode = true
+// 	bare = false
+// 	logallrefupdates = true
+// ";
 
 pub struct Repository {
     pub path: PathBuf,
@@ -51,7 +44,6 @@ impl Repository {
         }
 
         fs::write(git_path.join("HEAD"), "refs: refs/heads/main\n")?;
-        fs::write(git_path.join("config"), DEFAULT_LOCAL_CONFIG)?;
         Ok(())
     }
 }

@@ -8,7 +8,7 @@ fn main() {
     }
 
     match args[1].as_str() {
-        "init" => init::main(&args[2..]),
+        "init" => commands::init::main(&args[2..]),
         "help" => print_full_help(),
         _ => {
             print_short_help();
@@ -28,22 +28,24 @@ fn print_full_help() {
     println!("");
 }
 
-mod init {
-    pub fn main(args: &[String]) {
-        let dir = match args.len() {
-            0 => ".",
-            _ => args[0].as_str(),
-        };
+mod commands {
+    pub mod init {
+        pub fn main(args: &[String]) {
+            let dir = match args.len() {
+                0 => ".",
+                _ => args[0].as_str(),
+            };
 
-        let repo = super::repo::Repository::new(dir);
+            let repo = crate::objects::Repository::new(dir);
 
-        println!(
-            "Initialized empty Gitrs repository in {}",
-            repo.path.display()
-        );
+            println!(
+                "Initialized empty Gitrs repository in {}",
+                repo.path.display()
+            );
+        }
     }
 }
-mod repo {
+mod objects {
     use super::DEFAULT_GIT_DIR;
     use path_clean::PathClean;
     use std::fs;
@@ -92,11 +94,6 @@ mod repo {
             Ok(())
         }
     }
-}
-
-mod blob {}
-
-mod commit {
     pub struct Commit {
         parent: Option<Box<Commit>>,
         // timestamp
@@ -107,6 +104,8 @@ mod commit {
     struct CommitAuthor {}
 
     struct Committer {}
-}
 
-mod tree {}
+    struct Blob {}
+
+    struct Tree {}
+}

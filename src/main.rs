@@ -1,5 +1,7 @@
-mod init;
+mod commands;
 mod repo;
+
+use commands::init;
 
 static DEFAULT_GIT_DIR: &'static str = ".gitrs";
 

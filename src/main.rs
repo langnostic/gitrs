@@ -45,6 +45,7 @@ mod commands {
         }
     }
 }
+
 mod objects {
     use super::DEFAULT_GIT_DIR;
     use path_clean::PathClean;
@@ -96,14 +97,7 @@ mod objects {
     }
     pub struct Commit {
         parent: Option<Box<Commit>>,
-        // timestamp
-        author: CommitAuthor,
-        committer: Committer,
     }
-
-    struct CommitAuthor {}
-
-    struct Committer {}
 
     struct Blob {}
 

@@ -17,7 +17,8 @@ pub fn git_status_main(args: &[String]) -> Result<(), i32> {
         println!("arg: {:?}", arg);
     }
 
-    todo!()
+    // TODO: need to figure out the rest of the implementation
+    Ok(())
 }
 
 pub fn git_init_main(args: &[String]) -> Result<(), i32> {
@@ -27,6 +28,7 @@ pub fn git_init_main(args: &[String]) -> Result<(), i32> {
     };
 
     let repo = Repository::new(dir);
+    repo.init();
 
     println!(
         "Initialized empty Gitrs repository in {}",
@@ -51,7 +53,7 @@ const DEFAULT_GIT_DIR_TREE: &[&str] = &["objects", "refs", "refs/heads"];
 // ";
 
 pub struct Repository {
-    pub path: PathBuf,
+    path: PathBuf,
 }
 
 impl Repository {
@@ -62,20 +64,24 @@ impl Repository {
         }
         .join(DEFAULT_GIT_DIR);
 
-        // TODO: what does init reinitialize actually do?
-        if !path.exists() {
-            Self::create_repo(&path).unwrap();
-        }
-
         Self { path }
     }
 
-    fn create_repo(git_path: &PathBuf) -> io::Result<()> {
+    pub fn init(&self) {
+        if !self.path.exists() {
+            self.create_repo().unwrap();
+        } else {
+            // TODO: what does reinitalization do?
+            todo!()
+        }
+    }
+
+    fn create_repo(&self) -> io::Result<()> {
         for dir in DEFAULT_GIT_DIR_TREE.iter() {
-            fs::create_dir_all(git_path.join(dir))?;
+            fs::create_dir_all(self.path.join(dir))?;
         }
 
-        fs::write(git_path.join("HEAD"), "refs: refs/heads/main\n")?;
+        fs::write(self.path.join("HEAD"), "refs: refs/heads/main\n")?;
         Ok(())
     }
 }

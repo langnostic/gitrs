@@ -1,28 +1,40 @@
-fn main() {
-    // Shit, structops automatically creates a -h option
-    // I might have to bite the bullet and manually manage args
-    // let args: GitArgs = GitArgs::from_args();
+mod builtins;
 
+fn main() {
     let args: Vec<String> = std::env::args().collect();
 
     // I need to find a list of all available git commands,
     // subcommands, plumbing and porcelian.
 
-    println!("number of args: {}", args.len());
-    for arg in std::env::args() {
-        println!("{:?}", arg);
-    }
+    // Only put 'top' level commands/inputs in this match
+    // Any args after the the plumbing or porcelain should be passed
+    // to that handler (function, struct, enum, etc)
+    if args.len() >= 2 {
+        let _result = match args[1].as_ref() {
+            "init" => builtins::git_init_main(&args[1..]),
+            "status" => builtins::git_status_main(&args[1..]),
+            "version" | "--version" => {
+                print_version();
+                Ok(())
+            }
+            // TODO: maybe separate default pattern
+            // and check for spelling mistakes?
+            "-h" | "--help" | _ => {
+                print_git_help();
+                Ok(())
+            }
+        };
 
-    // TODO: simplify this conditional. It works for prototyping
-    if args.len() >= 2 && args[1] == "-h" || args[1] == "--help" {
+        // TODO: do something with _result
+    } else {
+        // No args passed in, print help screen
         print_git_help();
     }
-    // Print the current crate version
-    // if args.version {
-    //     let version = option_env!("CARGO_PKG_VERSION").unwrap();
-    //     println!("gitrs version: {}", version);
-    //     return;
-    // }
+}
+
+fn print_version() {
+    let version = option_env!("CARGO_PKG_VERSION").unwrap();
+    println!("gitrs version: {:?}", version);
 }
 
 fn print_git_help() {
@@ -50,71 +62,4 @@ concept guides. See \"git help <command>\" or \"git help <concept>\"
 to read about a specific subcommands or concept.
 See \"git help git\" for an overview of the system"
     );
-}
-
-mod init {
-    pub fn main(args: &[String]) {
-        let dir = match args.len() {
-            0 => ".",
-            _ => args[0].as_str(),
-        };
-
-        let repo = super::repo::Repository::new(dir);
-
-        println!(
-            "Initialized empty Gitrs repository in {}",
-            repo.path.display()
-        );
-    }
-}
-
-mod repo {
-    use path_clean::PathClean;
-    use std::fs;
-    use std::io;
-    use std::path::PathBuf;
-
-    const DEFAULT_GIT_DIR: &'static str = ".gitrs";
-    // TODO: Question for future langnostic
-    // Can I replicate this folder structure as a struct?
-    const DEFAULT_GIT_DIR_TREE: &[&str] = &["objects", "refs", "refs/heads"];
-
-    // TODO: consider moving this to a template folder?
-    // const DEFAULT_LOCAL_CONFIG: &str = "\
-    // [core]
-    // 	repositoryformatversion = 0
-    // 	filemode = true
-    // 	bare = false
-    // 	logallrefupdates = true
-    // ";
-
-    pub struct Repository {
-        pub path: PathBuf,
-    }
-
-    impl Repository {
-        pub fn new(dir: &str) -> Self {
-            let path = match dir {
-                "." | "./" => std::env::current_dir().unwrap(),
-                _ => PathBuf::from(dir).clean(),
-            }
-            .join(DEFAULT_GIT_DIR);
-
-            // TODO: what does init reinitialize actually do?
-            if !path.exists() {
-                Self::create_repo(&path).unwrap();
-            }
-
-            Self { path }
-        }
-
-        fn create_repo(git_path: &PathBuf) -> io::Result<()> {
-            for dir in DEFAULT_GIT_DIR_TREE.iter() {
-                fs::create_dir_all(git_path.join(dir))?;
-            }
-
-            fs::write(git_path.join("HEAD"), "refs: refs/heads/main\n")?;
-            Ok(())
-        }
-    }
 }

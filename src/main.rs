@@ -3,16 +3,13 @@ mod builtins;
 fn main() {
     let args: Vec<String> = std::env::args().collect();
 
-    // I need to find a list of all available git commands,
-    // subcommands, plumbing and porcelian.
-
-    // Only put 'top' level commands/inputs in this match
-    // Any args after the the plumbing or porcelain should be passed
-    // to that handler (function, struct, enum, etc)
     if args.len() >= 2 {
-        let _result = match args[1].as_ref() {
-            "init" => builtins::git_init_main(&args[1..]),
-            "status" => builtins::git_status_main(&args[1..]),
+        // Remove the first arg (path tofilename) by shadowing vec with slice
+        let args = args[1..].to_vec();
+
+        let _result = match args[0].as_ref() {
+            "init" => builtins::init_cmd(args),
+            "status" => builtins::status_cmd(args),
             "version" | "--version" => {
                 print_version();
                 Ok(())

@@ -6,25 +6,32 @@ TODO: Probably a Result, but not sure what the variants should be.
 use path_clean::PathClean;
 use std::fs;
 use std::io;
+use std::path;
 use std::path::PathBuf;
 
-pub fn git_status_main(args: &[String]) -> Result<(), i32> {
+fn print_args(args: &[String]) {
+    for arg in args {
+        println!("arg: {:?}", arg);
+    }
+}
+
+pub fn status_cmd(args: Vec<String>) -> Result<(), i32> {
+    print_args(&args);
+
     // construct options for this command
 
     // check if first (second?) arg is '-h'
     // exit(129) ?? what is this status code ??
-    for arg in args {
-        println!("arg: {:?}", arg);
-    }
 
     // TODO: need to figure out the rest of the implementation
     Ok(())
 }
 
-pub fn git_init_main(args: &[String]) -> Result<(), i32> {
-    let dir = match args.len() {
-        0 => ".",
-        _ => args[0].as_str(),
+pub fn init_cmd(args: Vec<String>) -> Result<(), i32> {
+    let dir = if args.len() >= 2 {
+        args[1].as_str()
+    } else {
+        "."
     };
 
     let repo = Repository::new(dir);

@@ -3,20 +3,35 @@ mod builtins;
 fn main() {
     let args: Vec<String> = std::env::args().collect();
 
+    println!("Number of args passed in: {}", args.len());
+
+    // This solution for arg parsing works for now, but it could be a problem later.
+    // May need to revisit this solution in the future
     if args.len() >= 2 {
-        // Remove the first arg (path tofilename) by shadowing vec with slice
+        // TODO: Do i want to shadow the first arg. Rust documentation says that this arg may not even be populated
+        // Remove the first arg (path to executable) by shadowing args vec
         let args = args[1..].to_vec();
 
         let _result = match args[0].as_ref() {
+            "add" => feature_not_implemented(),
+            "commit" => feature_not_implemented(),
             "init" => builtins::init_cmd(args),
+            "pull" => feature_not_implemented(),
+            "push" => feature_not_implemented(),
             "status" => builtins::status_cmd(args),
             "version" | "--version" => {
                 print_version();
                 Ok(())
             }
-            // TODO: maybe separate default pattern
-            // and check for spelling mistakes?
-            "-h" | "--help" | _ => {
+            "-h" | "--help" => {
+                // git opens manpages for various subcommands.
+                // this is not a concern right now, but something to keep in mind
+                print_git_help();
+                Ok(())
+            }
+            _ => {
+                // TODO: Git has a 'spellcheck' feature for cmds that don't make
+                // TODO: Recreate that functionality here (eventually)
                 print_git_help();
                 Ok(())
             }
@@ -27,6 +42,11 @@ fn main() {
         // No args passed in, print help screen
         print_git_help();
     }
+}
+
+fn feature_not_implemented() -> Result<(), i32> {
+    println!("This feature has not been implemented yet. Feel free to submit a PR");
+    Ok(())
 }
 
 fn print_version() {
@@ -53,10 +73,6 @@ start a working area (see also: git help tutorial)
 
 examine the history and state (see also: git help revision (? what the hell is that ?))
    status            Show the working tree status
-
-\"git help -a\" and \"git help -g \" list available subcommands ane some
-concept guides. See \"git help <command>\" or \"git help <concept>\"
-to read about a specific subcommands or concept.
-See \"git help git\" for an overview of the system"
+"
     );
 }

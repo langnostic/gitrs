@@ -6,7 +6,6 @@ TODO: Probably a Result, but not sure what the variants should be.
 use path_clean::PathClean;
 use std::fs;
 use std::io;
-use std::path;
 use std::path::PathBuf;
 
 fn print_args(args: &[String]) {

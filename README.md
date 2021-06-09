@@ -12,6 +12,6 @@ There is no guarantee that this repo will build or work, at the moment. I'm curr
 
 ## Rust Version and Targets
 
-Currently using Rust version 1.50.0 stable, and only targeting my daily driver for now: *Pop!_OS/Ubuntu 20.10*. I'm not concerned about cross-platform support right now, and I make no guarantees that this will work on any other platform.
+Currently using Rust version 1.52.1 stable, and only targeting my daily driver for now: *Pop!_OS/Ubuntu 20.10*. I'm not concerned about cross-platform support right now, and I make no guarantees that this will work on any other platform.
 
 Wish my luck, and feel free to submit a PR!
